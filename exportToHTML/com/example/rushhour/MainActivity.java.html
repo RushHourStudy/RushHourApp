@@ -1,0 +1,126 @@
+<html>
+<head>
+<title>MainActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #0033b3;}
+.s1 { color: #080808;}
+.s2 { color: #1750eb;}
+.s3 { color: #067d17;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+MainActivity.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.example.rushhour;</span>
+
+<span class="s0">import </span><span class="s1">androidx.appcompat.app.AppCompatActivity;</span>
+
+<span class="s0">import </span><span class="s1">android.os.Bundle;</span>
+<span class="s0">import </span><span class="s1">android.os.CountDownTimer;</span>
+<span class="s0">import </span><span class="s1">android.view.View;</span>
+<span class="s0">import </span><span class="s1">android.widget.Button;</span>
+<span class="s0">import </span><span class="s1">android.widget.TextView;</span>
+
+<span class="s0">import </span><span class="s1">java.util.Locale;</span>
+
+<span class="s0">public class </span><span class="s1">MainActivity </span><span class="s0">extends </span><span class="s1">AppCompatActivity {</span>
+    <span class="s0">private static final long </span><span class="s1">START_TIME_IN_MILLIS = </span><span class="s2">1800000</span><span class="s1">;</span>
+
+    <span class="s0">private </span><span class="s1">TextView mTextViewCountDown;</span>
+    <span class="s0">private </span><span class="s1">Button mButtonStartPause;</span>
+    <span class="s0">private </span><span class="s1">Button mButtonReset;</span>
+
+    <span class="s0">private </span><span class="s1">CountDownTimer mCountDownTimer;</span>
+
+    <span class="s0">private boolean </span><span class="s1">mTimerRunning;</span>
+
+    <span class="s0">private long </span><span class="s1">mTimeLeftInMillis = START_TIME_IN_MILLIS;</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) {</span>
+        <span class="s0">super</span><span class="s1">.onCreate(savedInstanceState);</span>
+        <span class="s1">setContentView(R.layout.activity_main);</span>
+
+        <span class="s1">mTextViewCountDown = findViewById(R.id.text_view_countdown);</span>
+
+        <span class="s1">mButtonStartPause = findViewById(R.id.button_start_pause);</span>
+        <span class="s1">mButtonReset = findViewById(R.id.button_reset);</span>
+
+        <span class="s1">mButtonStartPause.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s0">if </span><span class="s1">(mTimerRunning) {</span>
+                    <span class="s1">pauseTimer();</span>
+                <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+                    <span class="s1">startTimer();</span>
+                <span class="s1">}</span>
+
+            <span class="s1">}</span>
+        <span class="s1">});</span>
+
+        <span class="s1">mButtonReset.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s1">resetTimer();</span>
+            <span class="s1">}</span>
+        <span class="s1">});</span>
+
+        <span class="s1">updateCountDownText();</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">startTimer() {</span>
+        <span class="s1">mCountDownTimer = </span><span class="s0">new </span><span class="s1">CountDownTimer(mTimeLeftInMillis, </span><span class="s2">1000</span><span class="s1">) {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onTick(</span><span class="s0">long </span><span class="s1">millisUntilFinished) {</span>
+                <span class="s1">mTimeLeftInMillis = millisUntilFinished;</span>
+                <span class="s1">updateCountDownText();</span>
+            <span class="s1">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onFinish() {</span>
+                <span class="s1">mTimerRunning = </span><span class="s0">false</span><span class="s1">;</span>
+                <span class="s1">mButtonStartPause.setText(</span><span class="s3">&quot;Start&quot;</span><span class="s1">);</span>
+                <span class="s1">mButtonStartPause.setVisibility(View.INVISIBLE);</span>
+                <span class="s1">mButtonReset.setVisibility(View.VISIBLE);</span>
+
+            <span class="s1">}</span>
+        <span class="s1">}.start();</span>
+        <span class="s1">mTimerRunning = </span><span class="s0">true</span><span class="s1">;</span>
+        <span class="s1">mButtonStartPause.setText(</span><span class="s3">&quot;pause&quot;</span><span class="s1">);</span>
+        <span class="s1">mButtonReset.setVisibility(View.INVISIBLE);</span>
+
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">pauseTimer() {</span>
+        <span class="s1">mCountDownTimer.cancel();</span>
+        <span class="s1">mTimerRunning=</span><span class="s0">false</span><span class="s1">;</span>
+        <span class="s1">mButtonStartPause.setText(</span><span class="s3">&quot;Start&quot;</span><span class="s1">);</span>
+        <span class="s1">mButtonReset.setVisibility(View.VISIBLE);</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">resetTimer() {</span>
+        <span class="s1">mTimeLeftInMillis=START_TIME_IN_MILLIS;</span>
+        <span class="s1">updateCountDownText();</span>
+        <span class="s1">mButtonReset.setVisibility(View.INVISIBLE);</span>
+        <span class="s1">mButtonStartPause.setVisibility(View.VISIBLE);</span>
+    <span class="s1">}</span>
+
+
+    <span class="s0">private void </span><span class="s1">updateCountDownText() {</span>
+    <span class="s0">int </span><span class="s1">minuets = (</span><span class="s0">int</span><span class="s1">) mTimeLeftInMillis / </span><span class="s2">1000 </span><span class="s1">/ </span><span class="s2">60</span><span class="s1">;</span>
+    <span class="s0">int </span><span class="s1">seconds = (</span><span class="s0">int</span><span class="s1">) mTimeLeftInMillis / </span><span class="s2">1000 </span><span class="s1">% </span><span class="s2">60</span><span class="s1">;</span>
+
+    <span class="s1">String timeLeftFormatted = String.format(Locale.getDefault(),</span><span class="s3">&quot;%02d:%02d&quot;</span><span class="s1">, minuets, seconds);</span>
+
+        <span class="s1">mTextViewCountDown.setText(timeLeftFormatted);</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+
+
+</pre>
+</body>
+</html>
