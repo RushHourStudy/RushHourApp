@@ -7,6 +7,28 @@
     android:background="#000000"
     tools:context=".MainActivity">
 
+<EditText
+    android:id="@+id/edit_text_input"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:layout_above="@+id/text_view_countdown"
+    android:layout_centerHorizontal="true"
+    android:inputType="number"
+    android:hint="Minutes"
+    android:textColorHint="#D0F9C7"
+    android:textStyle="normal|italic"
+    android:maxLength="4"
+    />
+
+    <Button
+        android:id="@+id/button_set"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/edit_text_input"
+        android:layout_toEndOf="@+id/edit_text_input"
+        android:text="Set"
+        android:layout_toRightOf="@+id/edit_text_input" />
+
 <TextView
         android:id="@+id/text_view_countdown"
         android:layout_width="wrap_content"
