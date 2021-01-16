@@ -27,4 +27,11 @@
         android:textColor="@color/white"
         android:textSize="10sp" />
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="251dp"
+        app:srcCompat="@mipmap/Dumpling" />
+
 </RelativeLayout>

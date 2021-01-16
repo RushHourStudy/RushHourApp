@@ -3,19 +3,20 @@ package com.example.rushhour;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Bundle;
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
+import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     //Timer Variables
-    private static final long START_TIME_IN_MILLIS = 1800000;
+
 
     private TextView mTextViewCountDown;
     private Button mButtonStartPause;
@@ -32,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private CountDownTimer mCountDownTimer;
 
     private boolean mTimerRunning;
-
-    private long mTimeLeftInMillis = START_TIME_IN_MILLIS;
+    private long mStartTimeInMillis;
+    private long mTimeLeftInMillis;
     private long mEndTime;
 
 
@@ -59,15 +60,12 @@ public class MainActivity extends AppCompatActivity {
                 openRewardsPage();
             }
             //method to open rewards page
-            public void openRewardsPage() {
-                Intent intent = new Intent(MainActivity.this, RewardsPage.class);
-                startActivity(intent);
-            }
+
 
         });
 
 
-        //Uses method to recognize
+        //Button Set
         mButtonSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,8 +73,22 @@ public class MainActivity extends AppCompatActivity {
                 if (input.length() == 0) {
                     Toast.makeText(MainActivity.this, "Field can't be empty", Toast.LENGTH_SHORT).show();
                     return;
+
+                }else {
+                    setTime(1800000);
                 }
-            }});
+
+                long millisInput = Long.parseLong(input) * 60000;
+                if (millisInput == 0) {
+                    Toast.makeText(MainActivity.this, "Please enter a positive number", Toast.LENGTH_SHORT).show();
+                    return;
+                }else {
+                    setTime(1800000);
+                }
+                setTime(millisInput);
+                mEditTextInput.setText("");
+            }
+        });
 
 
 
@@ -88,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             startTimer();
                         }
-                        mButtonReward.setText("Reward");
-                        mButtonReward.setVisibility(View.VISIBLE);
+                        /*mButtonReward.setText("Reward");
+                        mButtonReward.setVisibility(View.VISIBLE);*/
                     }
                 });
 
@@ -103,6 +115,10 @@ public class MainActivity extends AppCompatActivity {
                 updateCountDownText();
 
 
+            }
+            public void openRewardsPage() {
+                Intent intent = new Intent(MainActivity.this, RewardsPage.class);
+                startActivity(intent);
             }
 
 
@@ -139,20 +155,50 @@ public class MainActivity extends AppCompatActivity {
 
             private void resetTimer() {
 
-                mTimeLeftInMillis = START_TIME_IN_MILLIS;
+                mTimeLeftInMillis = mStartTimeInMillis;
                 updateCountDownText();
                 updateButtons();
 
             }
+       private void setTime(long milliseconds) {
+            mStartTimeInMillis = milliseconds;
+           resetTimer();
+                closeKeyboard();
+        }
+
+    private void closeKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
 
 
             private void updateCountDownText() {
+            if(mTimeLeftInMillis==1800000) {
                 int minuets = (int) mTimeLeftInMillis / 1000 / 60;
                 int seconds = (int) mTimeLeftInMillis / 1000 % 60;
 
                 String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minuets, seconds);
 
                 mTextViewCountDown.setText(timeLeftFormatted);
+            }
+            else{
+                    int hours = (int) (mTimeLeftInMillis / 1000) / 3600;
+                    int minutes = (int) ((mTimeLeftInMillis / 1000) % 3600) / 60;
+                    int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
+                    String timeLeftFormatted;
+                    if (hours > 0) {
+                        timeLeftFormatted = String.format(Locale.getDefault(),
+                                "%d:%02d:%02d", hours, minutes, seconds);
+                    } else {
+                        timeLeftFormatted = String.format(Locale.getDefault(),
+                                "%02d:%02d", minutes, seconds);
+                    }
+                    mTextViewCountDown.setText(timeLeftFormatted);
+                }
             }
 
             //Makes sure that when rotating device, timer does not change
@@ -168,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         mButtonStartPause.setVisibility(View.VISIBLE);
                     }
-                    if (mTimeLeftInMillis < START_TIME_IN_MILLIS) {
+                    if (mTimeLeftInMillis < mTimeLeftInMillis) {
                         mButtonReset.setVisibility(View.VISIBLE);
                         mButtonReward.setVisibility(View.VISIBLE);
                     } else {
@@ -177,41 +223,50 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
-
-
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putLong("millisLeft", mTimeLeftInMillis);
-        outState.putBoolean("timerRunning", mTimerRunning);
-        outState.putLong("endTime", mEndTime);
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("startTimeInMillis", mStartTimeInMillis);
+        editor.putLong("millisLeft", mTimeLeftInMillis);
+        editor.putBoolean("timerRunning", mTimerRunning);
+        editor.putLong("endTime", mEndTime);
+        editor.apply();
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+        }
     }
-            @Override
-            protected void onSaveInstanceState(Bundle outState) {
-                super.onSaveInstanceState(outState);
-                outState.putLong("millisLeft", mTimeLeftInMillis);
-                outState.putBoolean("timerRunning", mTimerRunning);
-                outState.putLong("endTime", mEndTime);
-            }
-
-            @Override
-            protected void onRestoreInstanceState(Bundle savedInstanceState) {
-                super.onRestoreInstanceState(savedInstanceState);
-                mTimeLeftInMillis = savedInstanceState.getLong("millisLeft");
-                mTimerRunning = savedInstanceState.getBoolean("timerRunning");
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        mStartTimeInMillis = prefs.getLong("startTimeInMillis", 600000);
+        mTimeLeftInMillis = prefs.getLong("millisLeft", mStartTimeInMillis);
+        mTimerRunning = prefs.getBoolean("timerRunning", false);
+        updateCountDownText();
+        updateButtons();
+        if (mTimerRunning) {
+            mEndTime = prefs.getLong("endTime", 0);
+            mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
+            if (mTimeLeftInMillis < 0) {
+                mTimeLeftInMillis = 0;
+                mTimerRunning = false;
                 updateCountDownText();
                 updateButtons();
-                    if (mTimerRunning) {
-                        mEndTime = savedInstanceState.getLong("endTime");
-                        mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
-                        startTimer();
-                    }
+            } else {
+                startTimer();
             }
+        }
 
 
 
-}
+
+
+
+
+
+}}
 
 
 /* https://www.w3adda.com/android-tutorial/android-intents   - will help with the data access */
